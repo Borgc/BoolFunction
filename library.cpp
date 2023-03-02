@@ -3,50 +3,58 @@
 #include <iostream>
 
 
-bool BF::is_exp_of_2(size_t n) const
+bool BF::is_exp_of_2(size_t n)
 {
     return ( n & (n - 1) ) == 0;
 }
+size_t Rand(const size_t & min, const size_t & max) {
+    static thread_local std::mt19937* generator = nullptr;
+    if (!generator) generator = new std::mt19937(clock());
+    std::uniform_int_distribution<size_t> distribution(min, max);
+    return distribution(*generator);
+}
 BF::BF(size_t _n, int value) {
+    BASE one = 1;
     switch (value) {
         case 0://zero terminated function
             n = _n;
-            if ((0x1 << _n) <= BASE_len) {
+            if ((one << _n) <= BASE_len) {
                 f = new BASE[1]{};
                 nw = 1;
             } else {
-                nw = (0x1 << _n) / sizeof(BASE) + 1;
+                nw = (one << _n) / sizeof(BASE) + 1;
                 f = new BASE[nw]{};
             }
             break;
         case 1://one terminated function
             n = _n;
-            if ((0x1 << _n) <= BASE_len) {
+            if ((one << _n) <= BASE_len) {
                 f = new BASE[1]{};
-                f[0] = (0x1 << (0x1 << _n)) - 1;
+                f[0] = (one << (one << _n)) - 1;
                 nw = 1;
 
             } else {
-                nw = (0x1 << _n) / sizeof(BASE) + 1;
+                nw = (one << _n) / sizeof(BASE) + 1;
                 f = new BASE[nw]{};
                 for (size_t i = 0; i < nw; i++) {
-                    f[i] = f[i] - 1;
+                    f[i] = - 1;
                 }
             }
             break;
         case 2://random terminated function
             n = _n;
-            std::mt19937 gen((unsigned int) time(nullptr));
-            gen.seed(std::time(nullptr));
-            if ((0x1 << _n) < BASE_len) {
+            if ((one << _n) < BASE_len) {
                 f = new BASE[1];
-                f[0] = gen() & (0x1 << (0x1 << _n)) - 1;;
+
+                f[0] = Rand(0, BASE(0x0) - 1) & (one << (one << _n)) - one;;
                 nw = 1;
             } else {
-                nw = (0x1 << _n) / BASE_len;
+                nw = 0x1;
+                nw = nw << _n;
+                nw = nw / BASE_len;
                 f = new BASE[nw];
                 for (size_t i = 0; i < nw; i++) {
-                    f[i] = gen();
+                    f[i] = Rand(0, BASE(0x0) - 1);
                 }
 
             }
@@ -54,17 +62,16 @@ BF::BF(size_t _n, int value) {
     }
 }
 std::ostream & operator << (std::ostream & out, BF & fun){
+    BASE one = 1;
     if(fun.f != nullptr){
-        if((0x1 << fun.n) < BASE_len){
+        if((one << fun.n) < BASE_len){
             std::string s;
             s = (std::bitset<BASE_len>(fun.f[0])).to_string();
-            out << s.substr(s.length() - (0x1 << fun.n));
+            out << s.substr(s.length() - (one << fun.n));
         } else {
-            ssize_t i = ssize_t(fun.nw) - 1;
-            do {
+            for(size_t i = 0; i < fun.nw; i++){
                 out << std::bitset<BASE_len>(fun.f[i]);
-                i--;
-            } while (i >= 0);
+            }
         }
     }
     return out;
@@ -92,3 +99,60 @@ BF & BF::operator = (const BF & fun){
     }
     return *this;
 }
+
+BF::BF(const std::string& s) {
+    if(!is_exp_of_2(s.length())){
+        n = 0;
+        nw = 0;
+        f = nullptr;
+    } else {
+        auto tmp = size_t(s.length());
+        n = 0;
+        nw = (tmp + BASE_len - 1) / BASE_len;
+        while(tmp){
+            n++;
+            tmp = tmp >> 1;
+        }
+        n -=1;
+        if(s.length() < BASE_len){
+            std::bitset<BASE_len> bits(s);
+            f = new BASE[1];
+            f[0] = bits.to_ullong();
+        } else {
+            f = new BASE[nw];
+            for(size_t i = 0; i < nw; i++){
+                std::bitset<BASE_len> bits(s.substr(i * BASE_len, (i+1)*BASE_len));
+                f[i] = bits.to_ullong();
+            }
+        }
+    }
+}
+
+BF::BF(BF &fun) {
+    n = fun.n;
+    nw = fun.nw;
+    f = new BASE[nw];
+    for(size_t i = 0; i < nw; i++){
+        f[i] = fun.f[i];
+    }
+}
+
+bool BF::operator==(const BF &fun) const {
+    if(fun.n != this->n)return false;
+    if(fun.nw != this->nw)return false;
+    for(size_t i = 0; i < nw; i++){
+        if(fun.f[i] != this->f[i])return false;
+    }
+    return true;
+}
+BF BF::mobius(){
+    BASE m1 = 0xaaaaaaaa;
+    BASE m2 = 0xcccccccc;
+    BASE m3 = 0xf0f0f0f0;
+    BASE m4 = 0xff00ff00;
+    BASE m5 = 0xffff0000;
+    
+}
+
+
+
