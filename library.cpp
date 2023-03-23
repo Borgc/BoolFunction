@@ -151,7 +151,38 @@ BF BF::mobius(){
     BASE m3 = 0xf0f0f0f0;
     BASE m4 = 0xff00ff00;
     BASE m5 = 0xffff0000;
-    
+    BF tmp = *this;
+    switch (n) {
+        case 0: return {};
+        case 1: return *this;
+        case 2: tmp.f[0] ^= (tmp.f[0] & m1) >> 1;
+                tmp.f[0] ^= (tmp.f[0] & m2) >> 2;
+            return tmp;
+        case 3: tmp.f[0] ^= (tmp.f[0] & m1) >> 1;
+                tmp.f[0] ^= (tmp.f[0] & m2) >> 2;
+                tmp.f[0] ^= (tmp.f[0] & m3) >> 4;
+            return tmp;
+        case 4: tmp.f[0] ^= (tmp.f[0] & m1) >> 1;
+            tmp.f[0] ^= (tmp.f[0] & m2) >> 2;
+            tmp.f[0] ^= (tmp.f[0] & m3) >> 4;
+            tmp.f[0] ^= (tmp.f[0] & m4) >> 8;
+            return tmp;
+        case 5: tmp.f[0] ^= (tmp.f[0] & m1) >> 1;
+            tmp.f[0] ^= (tmp.f[0] & m2) >> 2;
+            tmp.f[0] ^= (tmp.f[0] & m3) >> 4;
+            tmp.f[0] ^= (tmp.f[0] & m4) >> 8;
+            tmp.f[0] ^= (tmp.f[0] & m5) >> 16;
+            return tmp;
+    }
+    size_t steps = n - 6;
+    for(size_t i = 0; i < ((size_t)1 << steps); i++){
+        tmp.f[i] ^= (tmp.f[i] & m1) >> 1;
+        tmp.f[i] ^= (tmp.f[i] & m2) >> 2;
+        tmp.f[i] ^= (tmp.f[i] & m3) >> 4;
+        tmp.f[i] ^= (tmp.f[i] & m4) >> 8;
+        tmp.f[i] ^= (tmp.f[i] & m5) >> 16;
+    }
+    return tmp;
 }
 
 

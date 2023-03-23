@@ -1,7 +1,8 @@
 #include "library.h"
 int main(){
-    BF a("00000000000000010000000000000011");
-    std::cout << a;
+    BF a("0000000000000000000000000000000000000000000000000000000000000010");
+    BF b = (a.mobius());
+    std::cout << b;
 //    BF zero1(3, 0);
 //    BF zero("00000000");
 //    std::cout << (zero1 == zero);
