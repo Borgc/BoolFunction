@@ -32,6 +32,8 @@ public:
     size_t weight() const;
 
     BF mobius();
+
+    std::string ANF();
 };
 void hello();
 

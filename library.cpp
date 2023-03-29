@@ -185,5 +185,60 @@ BF BF::mobius(){
     return tmp;
 }
 
+std::string BF::ANF(){ //use only with mobius vector
+    std::string str;
+    if(nw == 1){
+        size_t mask = 0x1 << ((0x1 << n) - 1);
+        size_t mask2;
+        if((f[0] & mask) != 0){
+            str += "1 + ";
+        }
+        mask = mask >> 1;
+        std::string tmp;
+        for(size_t i = 1; i < ((size_t)1 << n); i++){
+            if((f[0] & mask) != 0){
+                mask2 = 0x1;
+                for(size_t j = 0; j < n; j++) {
+                    tmp = ((i & mask2) ? "X" + std::to_string(n - j) + tmp: "" + tmp);
+                    mask2 <<= 1;
+                }
+                str += tmp + " + ";
+                tmp = "";
+            }
+            mask >>= 1;
+        }
+        if (!str.empty()) {
+            str.resize(str.length() - 3);
+        }
+        return str;
+    } else {
+        for(size_t k = 0; k < nw; k++){
+            BASE mask = (BASE(0x0) - 0x1) ^ ((BASE(0x0) - 0x1) >> 1);
+            BASE mask2;
+            if((f[k] & mask) != 0){
+                str += "1 + ";
+            }
+            mask = mask >> 1;
+            std::string tmp;
+            for(size_t i = 1; i < ((size_t)1 << n); i++){
+                if((f[0] & mask) != 0){
+                    mask2 = 0x1;
+                    for(size_t j = 0; j < n; j++) {
+                        tmp = ((i & mask2) ? "X" + std::to_string(n - j) + tmp: "" + tmp);
+                        mask2 <<= 1;
+                    }
+                    str += tmp + " + ";
+                    tmp = "";
+                }
+                mask >>= 1;
+            }
+            if (!str.empty()) {
+                str.resize(str.length() - 3);
+            }
+            return str;
+        }
+    }
+}
+
 
 
