@@ -34,6 +34,8 @@ public:
     BF mobius();
 
     std::string ANF();
+
+    static size_t deg(std::string str);
 };
 void hello();
 

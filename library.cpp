@@ -22,7 +22,7 @@ BF::BF(size_t _n, int value) {
                 f = new BASE[1]{};
                 nw = 1;
             } else {
-                nw = (one << _n) / sizeof(BASE) + 1;
+                nw = (one << _n) / BASE_len;
                 f = new BASE[nw]{};
             }
             break;
@@ -30,11 +30,12 @@ BF::BF(size_t _n, int value) {
             n = _n;
             if ((one << _n) <= BASE_len) {
                 f = new BASE[1]{};
-                f[0] = (one << (one << _n)) - 1;
+                f[0] = -1;
+                f[0] >> (one << n);
                 nw = 1;
 
             } else {
-                nw = (one << _n) / sizeof(BASE) + 1;
+                nw = (one << _n) / BASE_len;
                 f = new BASE[nw]{};
                 for (size_t i = 0; i < nw; i++) {
                     f[i] = - 1;
@@ -146,15 +147,17 @@ bool BF::operator==(const BF &fun) const {
     return true;
 }
 BF BF::mobius(){
-    BASE m1 = 0xaaaaaaaa;
-    BASE m2 = 0xcccccccc;
-    BASE m3 = 0xf0f0f0f0;
-    BASE m4 = 0xff00ff00;
-    BASE m5 = 0xffff0000;
+    BASE m1 = 0xaaaaaaaaaaaaaaaa;
+    BASE m2 = 0xcccccccccccccccc;
+    BASE m3 = 0xf0f0f0f0f0f0f0f0;
+    BASE m4 = 0xff00ff00ff00ff00;
+    BASE m5 = 0xffff0000ffff0000;
+    BASE m6 = 0xffffffff00000000;
     BF tmp = *this;
     switch (n) {
-        case 0: return {};
-        case 1: return *this;
+        case 0: return *this;
+        case 1: tmp.f[0] ^= (tmp.f[0] & m1) >> 1;
+            return *this;
         case 2: tmp.f[0] ^= (tmp.f[0] & m1) >> 1;
                 tmp.f[0] ^= (tmp.f[0] & m2) >> 2;
             return tmp;
@@ -181,6 +184,19 @@ BF BF::mobius(){
         tmp.f[i] ^= (tmp.f[i] & m3) >> 4;
         tmp.f[i] ^= (tmp.f[i] & m4) >> 8;
         tmp.f[i] ^= (tmp.f[i] & m5) >> 16;
+        tmp.f[i] ^= (tmp.f[i] & m6) >> 32;
+    }
+    size_t range = 1;
+    for(BASE l = 1; l <= steps; l++){
+        BASE temp = 0;
+        while(temp < ((size_t)1 << steps)){
+            BASE next = temp + range;
+            for(BASE q = 0; q < range; q++){
+                tmp.f[next + q] = tmp.f[next + q] ^ tmp.f[temp + q];
+            }
+            temp += 2 * range;
+        }
+        range *= 2;
     }
     return tmp;
 }
@@ -188,10 +204,14 @@ BF BF::mobius(){
 std::string BF::ANF(){ //use only with mobius vector
     std::string str;
     if(nw == 1){
-        size_t mask = 0x1 << ((0x1 << n) - 1);
-        size_t mask2;
+        BASE mask = BASE(0x1) << ((0x1 << n) - 1);
+        BASE mask2;
         if((f[0] & mask) != 0){
             str += "1 + ";
+        } else {
+            if(n == 0){
+                str = "0 + ";
+            }
         }
         mask = mask >> 1;
         std::string tmp;
@@ -212,16 +232,20 @@ std::string BF::ANF(){ //use only with mobius vector
         }
         return str;
     } else {
+        BASE mask = (BASE(0x0) - 0x1) ^ ((BASE(0x0) - 0x1) >> 1);
+        BASE mask2;
+        if((f[0] & mask) != 0){
+            str = "1 + ";
+        }
         for(size_t k = 0; k < nw; k++){
-            BASE mask = (BASE(0x0) - 0x1) ^ ((BASE(0x0) - 0x1) >> 1);
-            BASE mask2;
-            if((f[k] & mask) != 0){
-                str += "1 + ";
-            }
-            mask = mask >> 1;
             std::string tmp;
-            for(size_t i = 1; i < ((size_t)1 << n); i++){
-                if((f[0] & mask) != 0){
+            if(k > 0){
+                mask = (BASE(0x0) - 0x1) ^ ((BASE(0x0) - 0x1) >> 1);
+            } else {
+                mask = ((BASE(0x0) - 0x1) >> 1) ^ ((BASE(0x0) - 0x1) >> 2);
+            }
+            for(size_t i = 0; i < ((size_t)1 << n); i++){
+                if((f[k] & mask) != 0){
                     mask2 = 0x1;
                     for(size_t j = 0; j < n; j++) {
                         tmp = ((i & mask2) ? "X" + std::to_string(n - j) + tmp: "" + tmp);
@@ -232,13 +256,31 @@ std::string BF::ANF(){ //use only with mobius vector
                 }
                 mask >>= 1;
             }
-            if (!str.empty()) {
-                str.resize(str.length() - 3);
-            }
-            return str;
         }
+        if (!str.empty()) {
+            str.resize(str.length() - 3);
+        }
+        return str;
     }
 }
 
+
+
+size_t BF::deg(std::string str) {
+    if(str == "1" || str == "0")return 0;
+    size_t deg = 0;
+    size_t tmp = 0;
+    for(size_t i = 0; i < str.length(); i++){
+        if(str[i] == 'X'){
+            while(str[i] != ' ' && i < str.length()){
+                tmp++;
+                i++;
+            }
+            if(deg < tmp) deg = tmp;
+            tmp = 0;
+        }
+    }
+    return deg / 2;
+}
 
 
