@@ -229,6 +229,8 @@ std::string BF::ANF(){ //use only with mobius vector
         }
         if (!str.empty()) {
             str.resize(str.length() - 3);
+        } else {
+            return "0";
         }
         return str;
     } else {
@@ -237,17 +239,12 @@ std::string BF::ANF(){ //use only with mobius vector
         if((f[0] & mask) != 0){
             str = "1 + ";
         }
-        for(size_t k = 0; k < nw; k++){
-            std::string tmp;
-            if(k > 0){
-                mask = (BASE(0x0) - 0x1) ^ ((BASE(0x0) - 0x1) >> 1);
-            } else {
-                mask = ((BASE(0x0) - 0x1) >> 1) ^ ((BASE(0x0) - 0x1) >> 2);
-            }
-            for(size_t i = 0; i < ((size_t)1 << n); i++){
-                if((f[k] & mask) != 0){
+        mask >>= 1;
+        std::string tmp;
+            for(size_t i = 1; i < ((size_t)1 << n); i++){
+                if((f[i/BASE_len] & mask) != 0){
                     mask2 = 0x1;
-                    for(size_t j = 0; j < n; j++) {
+                    for(size_t j = 0; j <= n; j++) {
                         tmp = ((i & mask2) ? "X" + std::to_string(n - j) + tmp: "" + tmp);
                         mask2 <<= 1;
                     }
@@ -255,8 +252,10 @@ std::string BF::ANF(){ //use only with mobius vector
                     tmp = "";
                 }
                 mask >>= 1;
+                if(!mask){
+                    mask = (BASE(0x0) - 0x1) ^ ((BASE(0x0) - 0x1) >> 1);
+                }
             }
-        }
         if (!str.empty()) {
             str.resize(str.length() - 3);
         }
@@ -283,4 +282,37 @@ size_t BF::deg(std::string str) {
     return deg / 2;
 }
 
+int64_t * BF::WHt() {
+        auto *mas = new int64_t [BASE(1) << n];
+        BASE bound = (n <= BASE_len/8)? 1 << n: 1 << BASE_len/8;
+        for(size_t k = 0; k < this->nw; k++){
+            BASE mask = (n <= BASE_len/8)? 1 << ((1 << n) -1): (BASE(0x0) - 0x1) ^ ((BASE(0x0) - 0x1) >> 1);
+            for(BASE i = 0; i < bound; i++) {
+                if(this->f[k] & mask){
+                    mas[k * BASE_len + i] = -1;
+                } else {
+                    mas[k * BASE_len + i] =  1;
+                }
+                mask >>= 1;
+            }
+        }
 
+        int64_t x;
+        int64_t y;
+        int64_t r = 1;
+        for(BASE i = 0; i < n; i++, r <<= 1) {
+            for(BASE k = 0; k < 1 << n; k += 2 * r) {
+                for (BASE j = k; j < k + r; j ++) {
+                    x = mas[j];
+                    y = mas[j + r];
+                    mas[j] = x + y;
+                    mas[j + r] = x - y;
+                }
+            }
+        }
+        for(size_t i = 0; i < BASE(1) << n; i++){
+            std::cout << mas[i] << ' ';
+        }
+        delete [] mas;
+        return mas;
+}

@@ -36,6 +36,8 @@ public:
     std::string ANF();
 
     static size_t deg(std::string str);
+
+    int64_t * WHt();
 };
 void hello();
 
