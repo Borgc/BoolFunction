@@ -282,9 +282,8 @@ size_t BF::deg(std::string str) {
     return deg / 2;
 }
 
-int64_t * BF::WHt() {
-        auto *mas = new int64_t [BASE(1) << n];
-        BASE bound = (n <= BASE_len/8)? 1 << n: 1 << BASE_len/8;
+int32_t * BF::WHt(int32_t *mas) {//create "auto *mas = new int32_t [BASE(1) << a.get_n()];" before use
+        BASE bound = (BASE(1) << n <= BASE_len)? 1 << n: BASE_len;
         for(size_t k = 0; k < this->nw; k++){
             BASE mask = (n <= BASE_len/8)? 1 << ((1 << n) -1): (BASE(0x0) - 0x1) ^ ((BASE(0x0) - 0x1) >> 1);
             for(BASE i = 0; i < bound; i++) {
@@ -310,9 +309,39 @@ int64_t * BF::WHt() {
                 }
             }
         }
-        for(size_t i = 0; i < BASE(1) << n; i++){
-            std::cout << mas[i] << ' ';
-        }
-        delete [] mas;
         return mas;
+}
+
+size_t BF::get_n() const{
+    return this->n;
+}
+
+//size_t BF::cor(std::int32_t mas){
+//    for(BASE i = 0; i < )
+//}
+
+int64_t zakr(){
+    size_t k = 3;
+    size_t _n = 5;
+    size_t a = ((BASE(1) << k) -1) << (_n - k);
+    size_t b;
+    size_t c;
+    size_t tmp;
+    size_t res = 0;
+    size_t next = 0;
+    bool flag = true;
+    while(flag){
+        b = (a + 1) & a;
+        tmp = (b - 1) ^ a;
+        while(tmp){
+            res++;
+            tmp = tmp & (tmp - 1);
+        }
+        c = res - 2;
+        res = 0;
+        next = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;
+        std::cout << std::bitset <5> (next) << ' ';
+        if(next > a)flag = false;
+        a = next;
+    }
 }

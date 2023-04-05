@@ -37,8 +37,16 @@ public:
 
     static size_t deg(std::string str);
 
-    int64_t * WHt();
+    void WHt();
+
+    size_t get_n() const;
+
+    int32_t *WHt(int32_t *mas);
+
+    size_t cor(int32_t mas);
+
+
 };
 void hello();
-
+int64_t zakr();
 #endif //BF_LIBRARY_H
