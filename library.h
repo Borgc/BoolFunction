@@ -35,7 +35,6 @@ public:
 
     std::string ANF();
 
-    static size_t deg(std::string str);
 
     void WHt();
 
@@ -43,10 +42,13 @@ public:
 
     int32_t *WHt(int32_t *mas);
 
-    size_t cor(int32_t mas);
 
 
+
+    static size_t deg(BF mob);
+
+    size_t cor(int32_t *mas) const;
 };
 void hello();
-int64_t zakr();
+
 #endif //BF_LIBRARY_H

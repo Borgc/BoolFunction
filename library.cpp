@@ -265,21 +265,42 @@ std::string BF::ANF(){ //use only with mobius vector
 
 
 
-size_t BF::deg(std::string str) {
-    if(str == "1" || str == "0")return 0;
-    size_t deg = 0;
-    size_t tmp = 0;
-    for(size_t i = 0; i < str.length(); i++){
-        if(str[i] == 'X'){
-            while(str[i] != ' ' && i < str.length()){
-                tmp++;
-                i++;
+BASE BF::deg(BF mob) {
+    BASE deg = 0;
+    BASE tmp;
+    BASE res = 0;
+    if(mob.nw == 1) {
+        BASE mask = BASE(0x1) << ((0x1 << mob.n) - 1);
+        for (BASE i = 0; i < BASE(1) << mob.n; i++) {
+            if (mob.f[0] & mask) {
+                tmp = i;
+                while (tmp != 0) {
+                    res++;
+                    tmp = tmp & (tmp - 1);
+                }
+                if (res > deg)deg = res;
+                res = 0;
             }
-            if(deg < tmp) deg = tmp;
-            tmp = 0;
+            mask >>= 1;
+        }
+    } else {
+        for (BASE k = 0; k < mob.nw; k++) {
+            BASE mask = (BASE(0x0) - 0x1) ^ ((BASE(0x0) - 0x1) >> 1);
+            for (BASE i = 0; i < BASE_len; i++) {
+                if (mob.f[k] & mask) {
+                    tmp = k * BASE_len + i;
+                    while (tmp != 0) {
+                        res++;
+                        tmp = tmp & (tmp - 1);
+                    }
+                    if (res > deg)deg = res;
+                    res = 0;
+                }
+                mask >>= 1;
+            }
         }
     }
-    return deg / 2;
+    return deg;
 }
 
 int32_t * BF::WHt(int32_t *mas) {//create "auto *mas = new int32_t [BASE(1) << a.get_n()];" before use
@@ -316,32 +337,31 @@ size_t BF::get_n() const{
     return this->n;
 }
 
-//size_t BF::cor(std::int32_t mas){
-//    for(BASE i = 0; i < )
-//}
+size_t BF::cor(std::int32_t *mas) const{
+    for(BASE w = 1; w < n; w++){
 
-int64_t zakr(){
-    size_t k = 3;
-    size_t _n = 5;
-    size_t a = ((BASE(1) << k) -1) << (_n - k);
-    size_t b;
-    size_t c;
-    size_t tmp;
-    size_t res = 0;
-    size_t next = 0;
-    bool flag = true;
-    while(flag){
-        b = (a + 1) & a;
-        tmp = (b - 1) ^ a;
-        while(tmp){
-            res++;
-            tmp = tmp & (tmp - 1);
+        //zakrevskiy
+        size_t a = ((BASE(1) << w) -1) << (this->n - w);
+        size_t b;
+        size_t c;
+        size_t tmp;
+        size_t res = 0;
+        size_t next = 0;
+        while(true){
+            b = (a + 1) & a;
+            tmp = (b - 1) ^ a;
+            while(tmp){
+                res++;
+                tmp = tmp & (tmp - 1);
+            }
+            c = res - 2;
+            res = 0;
+            next = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;
+            if(next > a)break;
+            if(mas[next] != 0){
+                return w;
+            }
+            a = next;
         }
-        c = res - 2;
-        res = 0;
-        next = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;
-        std::cout << std::bitset <5> (next) << ' ';
-        if(next > a)flag = false;
-        a = next;
     }
 }
