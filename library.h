@@ -12,6 +12,7 @@
 #include <ctime>
 #include <random>
 #include <thread>
+#include <cmath>
 typedef uint64_t BASE;
 class BF{
 private:
@@ -48,6 +49,10 @@ public:
     static size_t deg(BF mob);
 
     size_t cor(int32_t *mas) const;
+
+    BASE Nf(int32_t *mas) const;
+
+    void best_affine_approximation(int32_t *mas) const;
 };
 void hello();
 

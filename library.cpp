@@ -366,4 +366,38 @@ size_t BF::cor(std::int32_t *mas) const{
         return n - 1;
     }
     return n;
+
+
+}
+
+BASE BF::Nf(int32_t * mas) const{
+    BASE tmp = 0;
+    for(BASE i = 0; i < (BASE(0x1) << n); i++){
+        if(abs(mas[i]) > tmp)tmp = abs(mas[i]);
+    }
+    return ((BASE)0x1 << (n - 1)) - (tmp >> 1);
+}
+
+void BF::best_affine_approximation(int32_t * mas) const{
+    BASE tmp = 0;
+    for(BASE i = 0; i < (BASE(0x1) << n); i++){
+        if(abs(mas[i]) > tmp)tmp = abs(mas[i]);
+    }
+    for(BASE i = 0; i < (BASE(0x1) << n); i++){
+        if(abs(mas[i]) == tmp){
+            std::string str;
+            for(BASE j = 0; j < n; j++){
+                if((BASE(0x1) << j) & i){
+                    str += "X" + std::to_string(n - j) + " + ";
+                }
+            }
+            if(mas[i] < 0){
+                str += "1";
+            } else {
+                str.resize(str.length() - 3);
+            }
+            str += '\n';
+            std::cout << str;
+        }
+    }
 }
