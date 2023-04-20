@@ -4,25 +4,21 @@ int main(){
     //std::cout << a << '\n';
     //BF a("01010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101");
     //BF a("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-    BF a("11010001");
+    BF a("00011010");
     //BF a("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
     BF b = (a.mobius());
-    std::cout << "MT = " << b << '\n';
-    std::cout << "ANF = " <<  b.ANF() << '\n';
-    std::cout << "deg = " << BF::deg(b) << '\n';
+    std::cout << b << '\n';
+    std::cout << b.ANF() << '\n';
+    std::cout << BF::deg(b) << '\n';
 
 
 
     auto *mas = new int32_t [BASE(1) << a.get_n()];
     mas = a.WHt(mas);
-    std::cout << "WHt = ";
     for(size_t i = 0; i < BASE(1) << a.get_n(); i++){
         std::cout << mas[i] << ' ';
     }
-    std::cout << '\n' << "cor(f) = " << a.cor(mas) << '\n';
-    std::cout << "Nf = " << a.Nf(mas) << '\n';
-    std::cout << "Best affine approximation:\n";
-    a.best_affine_approximation(mas);
+    std::cout << a.cor(mas) << '\n';
     delete [] mas;
 
     //zakr();

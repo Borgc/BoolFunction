@@ -339,6 +339,7 @@ size_t BF::get_n() const{
 
 size_t BF::cor(std::int32_t *mas) const{
     for(BASE w = 1; w < n; w++){
+
         //zakrevskiy
         size_t a = ((BASE(1) << w) -1) << (this->n - w);
         size_t b;
@@ -346,10 +347,7 @@ size_t BF::cor(std::int32_t *mas) const{
         size_t tmp;
         size_t res = 0;
         size_t next = 0;
-        do{
-            if(mas[a] != 0){
-                return w - 1;
-            }
+        while(true){
             b = (a + 1) & a;
             tmp = (b - 1) ^ a;
             while(tmp){
@@ -359,45 +357,11 @@ size_t BF::cor(std::int32_t *mas) const{
             c = res - 2;
             res = 0;
             next = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;
+            if(next > a)break;
+            if(mas[next] != 0){
+                return w;
+            }
             a = next;
-        }while(a != (BASE(1) << w) -1);
-    }
-    if(mas[((BASE(1) << n) -1)] != 0){
-        return n - 1;
-    }
-    return n;
-
-
-}
-
-BASE BF::Nf(int32_t * mas) const{
-    BASE tmp = 0;
-    for(BASE i = 0; i < (BASE(0x1) << n); i++){
-        if(abs(mas[i]) > tmp)tmp = abs(mas[i]);
-    }
-    return ((BASE)0x1 << (n - 1)) - (tmp >> 1);
-}
-
-void BF::best_affine_approximation(int32_t * mas) const{
-    BASE tmp = 0;
-    for(BASE i = 0; i < (BASE(0x1) << n); i++){
-        if(abs(mas[i]) > tmp)tmp = abs(mas[i]);
-    }
-    for(BASE i = 0; i < (BASE(0x1) << n); i++){
-        if(abs(mas[i]) == tmp){
-            std::string str;
-            for(BASE j = 0; j < n; j++){
-                if((BASE(0x1) << j) & i){
-                    str += "X" + std::to_string(n - j) + " + ";
-                }
-            }
-            if(mas[i] < 0){
-                str += "1";
-            } else {
-                str.resize(str.length() - 3);
-            }
-            str += '\n';
-            std::cout << str;
         }
     }
 }
