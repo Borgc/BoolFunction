@@ -4,23 +4,34 @@ int main(){
     //std::cout << a << '\n';
     //BF a("01010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101");
     //BF a("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-    BF a("00011010");
+    BF a("10100100");//11000000 baa //10111110 cor
     //BF a("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
     BF b = (a.mobius());
-    std::cout << b << '\n';
-    std::cout << b.ANF() << '\n';
-    std::cout << BF::deg(b) << '\n';
+    std::cout << "MT = " << b << '\n';
+    std::cout << "ANF = " <<  b.ANF() << '\n';
+    std::cout << "deg = " << BF::deg(b) << '\n';
 
 
 
     auto *mas = new int32_t [BASE(1) << a.get_n()];
     mas = a.WHt(mas);
+    std::cout << "WHt = ";
     for(size_t i = 0; i < BASE(1) << a.get_n(); i++){
         std::cout << mas[i] << ' ';
     }
-    std::cout << a.cor(mas) << '\n';
+    std::cout << '\n' << "cor(f) = " << a.cor(mas) << '\n';
+    std::cout << "Nf = " << a.Nf(mas) << '\n';
+    std::cout << "Best affine approximation:\n";
+    a.best_affine_approximation(mas);
+    mas = a.autocor(mas);
+    std::cout << "Autocorrelation vector = ";
+    for(size_t i = 0; i < BASE(1) << a.get_n(); i++){
+        std::cout << mas[i] << ' ';
+    }
+    std::cout << "\n" << "Propagation Critetion degree = " << a.PropCrit(mas) << "\n";
+    std::cout << "CNf = " << a.CNf(mas) << "\n";
     delete [] mas;
-
+//aaa
     //zakr();
 
 

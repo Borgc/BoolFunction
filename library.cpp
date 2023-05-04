@@ -339,7 +339,6 @@ size_t BF::get_n() const{
 
 size_t BF::cor(std::int32_t *mas) const{
     for(BASE w = 1; w < n; w++){
-
         //zakrevskiy
         size_t a = ((BASE(1) << w) -1) << (this->n - w);
         size_t b;
@@ -347,7 +346,11 @@ size_t BF::cor(std::int32_t *mas) const{
         size_t tmp;
         size_t res = 0;
         size_t next = 0;
-        while(true){
+        do{
+            if(mas[a] != 0){
+                //std::cout << std::bitset<8> (a) << '\n';
+                return w - 1;
+            }
             b = (a + 1) & a;
             tmp = (b - 1) ^ a;
             while(tmp){
@@ -357,11 +360,114 @@ size_t BF::cor(std::int32_t *mas) const{
             c = res - 2;
             res = 0;
             next = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;
-            if(next > a)break;
-            if(mas[next] != 0){
-                return w;
-            }
             a = next;
+        }while(a != (BASE(1) << w) -1);
+        if(mas[a] != 0){
+            return w - 1;
         }
     }
+    if(mas[((BASE(1) << n) -1)] != 0){
+        return n - 1;
+    }
+    return n;
+}
+
+BASE BF::Nf(int32_t * mas) const{
+    BASE tmp = 0;
+    for(BASE i = 0; i < (BASE(0x1) << n); i++){
+        if(abs(mas[i]) > tmp)tmp = abs(mas[i]);
+    }
+    return ((BASE)0x1 << (n - 1)) - (tmp >> 1);
+}
+
+void BF::best_affine_approximation(int32_t * mas) const{
+    BASE tmp = 0;
+    for(BASE i = 0; i < (BASE(0x1) << n); i++){
+        if(abs(mas[i]) > tmp)tmp = abs(mas[i]);
+    }
+    for(BASE i = 0; i < (BASE(0x1) << n); i++){
+        if(abs(mas[i]) == tmp){
+            std::string str;
+            for(BASE j = 0; j < n; j++){
+                if((BASE(0x1) << j) & i){
+                    str += "X" + std::to_string(n - j) + " + ";
+                }
+            }
+            if(mas[i] < 0){
+                str += "1";
+            } else if(str.empty()) {
+                str = "0";
+            } else {
+                str.resize(str.length() - 3);
+            }
+            str += '\n';
+            std::cout << str;
+        }
+    }
+}
+
+int32_t *BF::autocor(int32_t * mas){ //for Walsh Hadamar vector
+    for(BASE i = 0; i < BASE(1) << this->get_n(); i ++){
+        mas[i] = mas[i] * mas[i];
+    }
+    int64_t x;
+    int64_t y;
+    int64_t r = 1;
+    for(BASE i = 0; i < n; i++, r <<= 1) {
+        for(BASE k = 0; k < 1 << n; k += 2 * r) {
+            for (BASE j = k; j < k + r; j ++) {
+                x = mas[j];
+                y = mas[j + r];
+                mas[j] = x + y;
+                mas[j + r] = x - y;
+            }
+        }
+    }
+    for(BASE i = 0; i < BASE(1) << this->get_n(); i ++){
+        mas[i] >>= this->get_n();
+    }
+    return mas;
+}
+
+size_t BF::PropCrit(int32_t *mas) const{//Propagation Criterion (use with autocor vector)
+    for(BASE w = 1; w < n; w++){
+        //zakrevskiy
+        size_t a = ((BASE(1) << w) -1) << (this->n - w);
+        size_t b;
+        size_t c;
+        size_t tmp;
+        size_t res = 0;
+        size_t next = 0;
+        do{
+            if(mas[a] != 0){
+                //std::cout << std::bitset<8> (a) << '\n';
+                return w - 1;
+            }
+            b = (a + 1) & a;
+            tmp = (b - 1) ^ a;
+            while(tmp){
+                res++;
+                tmp = tmp & (tmp - 1);
+            }
+            c = res - 2;
+            res = 0;
+            next = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;
+            a = next;
+        }while(a != (BASE(1) << w) -1);
+        if(mas[a] != 0){
+            return w - 1;
+        }
+    }
+    if(mas[((BASE(1) << n) -1)] != 0){
+        return n - 1;
+    }
+    return n;
+}
+
+BASE BF::CNf(int32_t * mas) const{ // use for autocor vector
+    BASE tmp = 0;
+    for(BASE i = 1; i < (BASE(0x1) << n); i++){
+        if(abs(mas[i]) > tmp)tmp = abs(mas[i]);
+    }
+    return ((BASE)0x1 << (n - 2)) - (tmp >> 2);
 }
