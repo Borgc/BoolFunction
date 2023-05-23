@@ -471,3 +471,80 @@ BASE BF::CNf(int32_t * mas) const{ // use for autocor vector
     }
     return ((BASE)0x1 << (n - 2)) - (tmp >> 2);
 }
+BF BF::inverse(){
+    BF fun;
+    fun = *this;
+    for(size_t i = 0; i < this->nw; i++){
+        fun.f[i] = ~this->f[i];
+    }
+    return fun;
+}
+
+BASE * BF::AImatrix() const {
+    BF fun;
+    fun = *this;
+    if(fun.weight() > fun.get_n()/2) {
+        fun = fun.inverse();
+    }
+    BASE mask = 0x1;
+    BASE * matrix = new BASE [(1 << n) + 1];//(fun.get_n() - 1)/2 + 1
+    matrix[0] = -1;
+//    int j = 1;
+//    for(int i = 0; i < 1 << fun.get_n(); i++){
+//        if(fun.f[0] && (mask >> i)){
+//            matrix[j] = i;
+//            j++;
+//        }
+//    }
+//    int weight = j;
+    BASE mask0[6];
+    mask0[5] = (1 << n/2) - 1;
+    mask0[4] = 0x0000ffff0000ffff;
+    mask0[3] = 0x00ff00ff00ff00ff;
+    mask0[2] = 0x0f0f0f0f0f0f0f0f;
+    mask0[1] = 0x3333333333333333;
+    mask0[0] = 0x5555555555555555;
+    int l;
+    for(l = 1; l <= n; l++){
+        matrix[l] = mask0[l - 1];
+    }
+    for(BASE w = 2; w <= n; w++){
+        //zakrevskiy
+        size_t a = ((BASE(1) << w) -1) << (this->n - w);
+        size_t b;
+        size_t c;
+        size_t tmp;
+        size_t res = 0;
+        size_t next = 0;
+        BASE cast = -1;
+        do{
+            for(int k = 0; k < n; k++){
+                if((1 << k) & a) {
+                    cast &= matrix[k + 1];
+                }
+            }
+            matrix[l] = cast;
+            l++;
+            cast = -1;
+            if(a == (BASE(1) << w) -1) break;
+
+            b = (a + 1) & a;
+            tmp = (b - 1) ^ a;
+            while(tmp){
+                res++;
+                tmp = tmp & (tmp - 1);
+            }
+            c = res - 2;
+            res = 0;
+            next = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;
+            a = next;
+        }while(true);
+    }
+    for(int j = 0; j < (1 << n) + 1; j++){//(fun.get_n() - 1)/2 + 1
+        //if(fun.f[0] && (0x1 << j)) {
+            std::cout << std::bitset<8>(matrix[j]) << '\n';
+        //}
+    }
+    delete[] matrix;
+    return matrix;
+}

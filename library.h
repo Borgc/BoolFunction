@@ -56,6 +56,10 @@ public:
     size_t PropCrit(int32_t *mas) const;
 
     BASE CNf(int32_t *mas) const;
+
+    BASE * AImatrix() const;
+
+    BF inverse();
 };
 void hello();
 
