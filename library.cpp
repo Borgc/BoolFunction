@@ -471,6 +471,8 @@ BASE BF::CNf(int32_t * mas) const{ // use for autocor vector
     }
     return ((BASE)0x1 << (n - 2)) - (tmp >> 2);
 }
+
+
 BF BF::inverse(){
     BF fun;
     fun = *this;
@@ -480,14 +482,14 @@ BF BF::inverse(){
     return fun;
 }
 
-BASE * BF::AImatrix() const {
+BASE * BF::AImatrix(BASE * AImatrix) const {
     BF fun;
     fun = *this;
-    if(fun.weight() > fun.get_n()/2) {
+    if(fun.weight() > (1 << fun.get_n())/2) {
         fun = fun.inverse();
     }
-    BASE mask = 0x1;
-    BASE * matrix = new BASE [(1 << n) + 1];//(fun.get_n() - 1)/2 + 1
+    std::cout << fun << '\n';
+    BASE * matrix = new BASE [(1 << n)];//(fun.get_n() - 1)/2 + 1
     matrix[0] = -1;
 //    int j = 1;
 //    for(int i = 0; i < 1 << fun.get_n(); i++){
@@ -540,11 +542,31 @@ BASE * BF::AImatrix() const {
             a = next;
         }while(true);
     }
-    for(int j = 0; j < (1 << n) + 1; j++){//(fun.get_n() - 1)/2 + 1
-        //if(fun.f[0] && (0x1 << j)) {
-            std::cout << std::bitset<8>(matrix[j]) << '\n';
-        //}
+    BASE mask = BASE(0x1) << (BASE(0x1) << this->get_n());
+    std::string tmp;
+    int c = 0;
+    while(mask != 0){
+        if(fun.f[0] & mask){
+            for(int i = 0; i < 1 << this->get_n(); i++) {
+                if(matrix[i] & mask){
+                    AImatrix[c] |= (1 << (i));
+                    tmp += "1 ";
+                } else {
+                    tmp += "0 ";
+                }
+            }
+            c++;
+            std::cout << tmp << '\n';
+            tmp = "";
+        }
+        mask >>= 1;
     }
+
+//    for(int j = 0; j < (1 << n); j++){//(fun.get_n() - 1)/2 + 1
+//        //if(fun.f[0] && (0x1 << j)) {
+//        std::cout << std::bitset<8>(matrix[j]) << '\n';
+//        //}
+//    }
     delete[] matrix;
-    return matrix;
+    return AImatrix;
 }

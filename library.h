@@ -57,9 +57,9 @@ public:
 
     BASE CNf(int32_t *mas) const;
 
-    BASE * AImatrix() const;
-
     BF inverse();
+
+    BASE *AImatrix(BASE *AImatrix) const;
 };
 void hello();
 

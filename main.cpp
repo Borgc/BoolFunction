@@ -4,7 +4,7 @@ int main(){
     //std::cout << a << '\n';
     //BF a("01010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101");
     //BF a("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-    BF a("01001001");//11000000 baa //10111110 cor
+    BF a("01001011");//11000000 baa //10111110 cor
     //BF a("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
     BF b = (a.mobius());
     std::cout << "MT = " << b << '\n';
@@ -30,7 +30,14 @@ int main(){
     }
     std::cout << "\n" << "Propagation Critetion degree = " << a.PropCrit(mas) << "\n";
     std::cout << "CNf = " << a.CNf(mas) << "\n";
-    a.AImatrix();
+    BASE * TheoremMatrix = new BASE [a.weight()];
+    TheoremMatrix = a.AImatrix(TheoremMatrix);
+    for(int j = 0; j < a.weight(); j++){//(fun.get_n() - 1)/2 + 1
+        //if(fun.f[0] && (0x1 << j)) {
+        std::cout << std::bitset<8>(TheoremMatrix[j]) << '\n';
+        //}
+    }
+    delete [] TheoremMatrix;
     delete [] mas;
 //aaa
     //zakr();
